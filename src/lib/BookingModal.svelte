@@ -1,153 +1,226 @@
 <script>
-    let { spotId, onConfirm, onCancel } = $props();
-    let duration = $state(1);
-    let price = $derived(duration * 5); // $5 per hour
+    let { spotId, onCancel, onConfirm } = $props();
+    let durations = [
+        { label: "1 Hour", value: 1, price: "5.00" },
+        { label: "2 Hours", value: 2, price: "9.00" },
+        { label: "4 Hours", value: 4, price: "15.00" },
+        { label: "All Day", value: 12, price: "25.00" },
+    ];
+    let selectedDuration = $state(durations[0]);
 </script>
 
-<div class="modal-backdrop">
-    <div class="modal">
-        <div class="header">
-            <h2>Reserve Spot <span class="highlight">{spotId}</span></h2>
-            <button class="close-btn" onclick={onCancel}>&times;</button>
+<div class="booking-card glass-morphism">
+    <div class="header">
+        <div class="spot-badge">
+            <span class="label">SPOT</span>
+            <span class="value">{spotId}</span>
+        </div>
+        <h3>Booking Details</h3>
+    </div>
+
+    <div class="content">
+        <p class="section-title">Select Duration</p>
+        <div class="duration-grid">
+            {#each durations as d}
+                <button
+                    class="duration-item {selectedDuration.value === d.value
+                        ? 'active'
+                        : ''}"
+                    onclick={() => (selectedDuration = d)}
+                >
+                    <span class="duration-label">{d.label}</span>
+                    <span class="duration-price">${d.price}</span>
+                </button>
+            {/each}
         </div>
 
-        <div class="content">
-            <div class="duration-control">
-                <label>Duration</label>
-                <div class="stepper">
-                    <button onclick={() => duration > 1 && duration--}>-</button
-                    >
-                    <span>{duration} hr</span>
-                    <button onclick={() => duration++}>+</button>
-                </div>
+        <div class="summary-card">
+            <div class="summary-row">
+                <span>Parking Fee</span>
+                <span>${selectedDuration.price}</span>
             </div>
-
-            <div class="price-tag">
-                <span>Total</span>
-                <span class="amount">${price}.00</span>
+            <div class="summary-row">
+                <span>Service Fee</span>
+                <span>$0.50</span>
+            </div>
+            <div class="divider"></div>
+            <div class="summary-row total">
+                <span>Total Amount</span>
+                <span
+                    >${(parseFloat(selectedDuration.price) + 0.5).toFixed(
+                        2,
+                    )}</span
+                >
             </div>
         </div>
+    </div>
 
-        <button class="confirm-btn" onclick={() => onConfirm(duration)}>
-            Confirm Booking
+    <div class="actions">
+        <button class="secondary-btn" onclick={onCancel}>Cancel</button>
+        <button
+            class="primary-btn"
+            onclick={() => onConfirm(selectedDuration.value)}
+        >
+            Proceed to Pay
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                class="icon"><path d="M5 12h14M12 5l7 7-7 7" /></svg
+            >
         </button>
     </div>
 </div>
 
 <style>
-    .modal-backdrop {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        z-index: 100;
-    }
-
-    .modal {
-        background: var(--color-surface);
-        width: 100%;
-        max-width: 480px;
-        border-radius: 24px 24px 0 0;
+    .booking-card {
+        background: var(--surface-color);
+        border-radius: var(--radius-lg);
         padding: 24px;
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
-        animation: slideUp 0.3s ease-out;
-    }
-
-    @keyframes slideUp {
-        from {
-            transform: translateY(100%);
-        }
-        to {
-            transform: translateY(0);
-        }
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
     .header {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 16px;
         margin-bottom: 24px;
     }
 
-    h2 {
-        margin: 0;
-        font-size: 1.5rem;
-        color: var(--color-text-main);
-    }
-
-    .highlight {
-        color: var(--color-selected);
-    }
-
-    .close-btn {
-        font-size: 1.5rem;
-        color: var(--color-text-muted);
-        padding: 8px;
-    }
-
-    .content {
-        background: rgba(0, 0, 0, 0.2);
-        padding: 20px;
-        border-radius: var(--radius-md);
-        margin-bottom: 24px;
-    }
-
-    .duration-control {
+    .spot-badge {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: center;
-        margin-bottom: 20px;
+        background: var(--accent);
+        color: var(--bg-color);
+        padding: 8px 12px;
+        border-radius: 12px;
+        min-width: 60px;
     }
 
-    .stepper {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        background: var(--color-bg);
-        padding: 8px;
-        border-radius: var(--radius-md);
+    .spot-badge .label {
+        font-size: 0.6rem;
+        font-weight: 800;
     }
-
-    .stepper button {
-        width: 30px;
-        height: 30px;
-        background: var(--color-surface);
-        color: var(--color-text-main);
-        border-radius: 8px;
-        font-weight: bold;
-    }
-
-    .price-tag {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .spot-badge .value {
         font-size: 1.2rem;
-        font-weight: bold;
+        font-weight: 900;
+        line-height: 1;
     }
 
-    .amount {
-        color: var(--color-primary);
+    h3 {
+        font-size: 1.2rem;
+        color: var(--text-main);
     }
 
-    .confirm-btn {
-        width: 100%;
-        padding: 18px;
-        background: var(--color-primary);
-        color: #fff;
-        font-size: 1.1rem;
-        font-weight: bold;
-        border-radius: var(--radius-md);
-        box-shadow: 0 4px 20px var(--color-primary-glow);
-        transition: transform 0.2s;
+    .section-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 12px;
     }
 
-    .confirm-btn:active {
-        transform: scale(0.98);
+    .duration-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .duration-item {
+        background: var(--surface-color-lighter);
+        border: 1px solid var(--surface-border);
+        padding: 12px;
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        text-align: left;
+    }
+
+    .duration-item.active {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .duration-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+    .duration-price {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+    .active .duration-label {
+        color: var(--primary);
+    }
+
+    .summary-card {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+    }
+
+    .divider {
+        height: 1px;
+        background: var(--surface-border);
+        margin: 12px 0;
+    }
+
+    .total {
+        color: var(--text-main);
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .secondary-btn {
+        flex: 1;
+        padding: 14px;
+        background: transparent;
+        border: 1px solid var(--surface-border);
+        color: var(--text-muted);
+        border-radius: 14px;
+        font-weight: 600;
+    }
+
+    .primary-btn {
+        flex: 2;
+        padding: 14px;
+        background: var(--primary);
+        color: white;
+        border-radius: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: 0 8px 20px -6px var(--primary-glow);
+    }
+
+    .icon {
+        width: 18px;
+        height: 18px;
     }
 </style>

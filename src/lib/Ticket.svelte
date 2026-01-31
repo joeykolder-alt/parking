@@ -1,220 +1,316 @@
 <script>
     let { spotId, duration, onClose } = $props();
-
-    // Create a fake QR code pattern
-    const qrRows = Array(8)
-        .fill(0)
-        .map(() =>
-            Array(8)
-                .fill(0)
-                .map(() => Math.random() > 0.5),
-        );
+    const entryTime = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+    const expiresAt = new Date(
+        Date.now() + duration * 60 * 60 * 1000,
+    ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 </script>
 
 <div class="ticket-container">
-    <div class="ticket">
+    <div class="ticket glass-morphism animate-ticket">
         <div class="ticket-header">
-            <h3>Parking Pass</h3>
-            <span class="brand">SuperApp</span>
+            <div class="logo">
+                <div class="logo-icon">P</div>
+                <span>PARKING PASS</span>
+            </div>
+            <div class="status-badge">ACTIVE</div>
         </div>
 
-        <div class="ticket-body">
-            <div class="info-row">
-                <label>SPOT</label>
-                <span class="value huge">{spotId}</span>
+        <div class="main-info">
+            <div class="info-block">
+                <span class="label">ENTRY TIME</span>
+                <span class="value">{entryTime}</span>
             </div>
-
-            <div class="info-grid">
-                <div class="info-item">
-                    <label>DURATION</label>
-                    <span class="value">{duration} hr</span>
-                </div>
-                <div class="info-item">
-                    <label>COST</label>
-                    <span class="value">${duration * 5}.00</span>
-                </div>
-            </div>
-
-            <div class="qr-code">
-                {#each qrRows as row}
-                    <div class="qr-row">
-                        {#each row as cell}
-                            <div
-                                class="qr-cell"
-                                style:opacity={cell ? 1 : 0.1}
-                            ></div>
-                        {/each}
-                    </div>
-                {/each}
+            <div class="info-block text-right">
+                <span class="label">EXPIRES AT</span>
+                <span class="value">{expiresAt}</span>
             </div>
         </div>
 
-        <div class="ticket-footer">
+        <div class="divider">
             <div class="cutout left"></div>
-            <div class="cutout right"></div>
             <div class="dashed-line"></div>
+            <div class="cutout right"></div>
         </div>
 
-        <div class="actions">
-            <button class="done-btn" onclick={onClose}>Done</button>
+        <div class="ticket-details">
+            <div class="row">
+                <div class="detail">
+                    <span class="label">SPOT NO</span>
+                    <span class="value highlight">{spotId}</span>
+                </div>
+                <div class="detail">
+                    <span class="label">LEVEL</span>
+                    <span class="value">01</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="detail">
+                    <span class="label">VEHICLE</span>
+                    <span class="value">SEDAN</span>
+                </div>
+                <div class="detail">
+                    <span class="label">PLATE</span>
+                    <span class="value">ABC - 123</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="qr-section">
+            <div class="qr-placeholder">
+                <div class="qr-dots">
+                    {#each Array(25) as _}
+                        <div class="qr-dot"></div>
+                    {/each}
+                </div>
+                <div class="qr-corner top-left"></div>
+                <div class="qr-corner top-right"></div>
+                <div class="qr-corner bottom-left"></div>
+                <div class="qr-corner bottom-right"></div>
+            </div>
+            <p class="qr-hint">Scan at exit gate</p>
         </div>
     </div>
+
+    <button class="close-btn" onclick={onClose}> Confirm & Close </button>
 </div>
 
 <style>
     .ticket-container {
-        position: fixed;
-        top: 0;
-        left: 0;
         width: 100%;
-        height: 100%;
-        background: var(--color-bg);
         display: flex;
+        flex-direction: column;
+        gap: 24px;
         align-items: center;
-        justify-content: center;
-        z-index: 200;
-        padding: 20px;
     }
 
     .ticket {
+        width: 100%;
         background: #fff;
         color: #000;
-        width: 100%;
-        max-width: 340px;
-        border-radius: 20px;
+        border-radius: 24px;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    @keyframes popIn {
-        from {
-            transform: scale(0.8);
-            opacity: 0;
-        }
-        to {
-            transform: scale(1);
-            opacity: 1;
-        }
+        position: relative;
     }
 
     .ticket-header {
-        background: var(--color-primary);
-        padding: 20px;
+        background: #000;
+        color: #fff;
+        padding: 20px 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        color: white;
     }
 
-    .brand {
-        font-weight: 800;
-        letter-spacing: 1px;
-        opacity: 0.8;
-    }
-
-    .ticket-body {
-        padding: 30px;
+    .logo {
         display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .info-row {
-        text-align: center;
-    }
-
-    .huge {
-        font-size: 3rem;
+        align-items: center;
+        gap: 10px;
         font-weight: 800;
-        color: var(--color-bg);
+        font-size: 0.8rem;
+        letter-spacing: 0.1em;
+    }
+
+    .logo-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .status-badge {
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
+
+    .main-info {
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .info-block .label {
         display: block;
-        line-height: 1;
-    }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
-
-    .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    label {
-        font-size: 0.7rem;
-        color: #64748b;
+        font-size: 0.65rem;
         font-weight: 700;
-        letter-spacing: 1px;
+        color: #666;
+        margin-bottom: 4px;
     }
 
-    .value {
-        font-weight: 700;
-        font-size: 1.1rem;
+    .info-block .value {
+        font-size: 1.4rem;
+        font-weight: 900;
+        font-family: var(--font-heading);
     }
 
-    .qr-code {
-        width: 120px;
-        height: 120px;
-        margin: 10px auto;
-        display: flex;
-        flex-direction: column;
+    .text-right {
+        text-align: right;
     }
 
-    .qr-row {
-        display: flex;
-        flex: 1;
-    }
-
-    .qr-cell {
-        flex: 1;
-        background: #000;
-    }
-
-    .ticket-footer {
+    .divider {
         position: relative;
         height: 20px;
-        background: #fff;
+        display: flex;
+        align-items: center;
     }
 
     .cutout {
         position: absolute;
-        top: -10px;
         width: 20px;
         height: 20px;
-        background: var(--color-bg);
+        background: #000; /* Match modal background */
         border-radius: 50%;
+        z-index: 2;
     }
 
-    .left {
+    .cutout.left {
         left: -10px;
     }
-    .right {
+    .cutout.right {
         right: -10px;
     }
 
     .dashed-line {
-        position: absolute;
-        top: 0;
-        left: 10px;
-        right: 10px;
-        border-top: 2px dashed #cbd5e1;
-    }
-
-    .actions {
-        padding: 20px;
-        background: #f8fafc;
-    }
-
-    .done-btn {
         width: 100%;
-        padding: 15px;
-        background: var(--color-bg);
-        color: #fff;
-        border-radius: 12px;
-        font-weight: bold;
+        height: 1px;
+        border-top: 2px dashed #eee;
+        margin: 0 15px;
+    }
+
+    .ticket-details {
+        padding: 12px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .detail .label {
+        display: block;
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: #999;
+        margin-bottom: 2px;
+    }
+
+    .detail .value {
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .value.highlight {
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    .qr-section {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #fbfbfb;
+    }
+
+    .qr-placeholder {
+        width: 120px;
+        height: 120px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .qr-dots {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+    }
+
+    .qr-dot {
+        width: 4px;
+        height: 4px;
+        background: #000;
+        border-radius: 1px;
+    }
+
+    .qr-corner {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #000;
+    }
+
+    .top-left {
+        top: 0;
+        left: 0;
+        border-right: none;
+        border-bottom: none;
+    }
+    .top-right {
+        top: 0;
+        right: 0;
+        border-left: none;
+        border-bottom: none;
+    }
+    .bottom-left {
+        bottom: 0;
+        left: 0;
+        border-right: none;
+        border-top: none;
+    }
+    .bottom-right {
+        bottom: 0;
+        right: 0;
+        border-left: none;
+        border-top: none;
+    }
+
+    .qr-hint {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .close-btn {
+        width: 100%;
+        padding: 16px;
+        background: var(--primary);
+        color: white;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1rem;
+        box-shadow: 0 10px 25px -10px var(--primary-glow);
+    }
+
+    .animate-ticket {
+        animation: ticketPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes ticketPop {
+        0% {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
 </style>
